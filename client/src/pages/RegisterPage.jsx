@@ -9,11 +9,20 @@ export default function RegisterPage() {
     async function register(ev) {
         ev.preventDefault();
         console.log({ username, password });
-        await fetch('http://localhost:3000/api/register', {
+        const response = await fetch('http://localhost:3000/api/register', {
             method: 'POST',
             body: JSON.stringify({ username, password }),
             headers: { 'Content-Type': 'application/json' },
         })
+        // const obj = await response.json()
+        // console.log(response);//This response is the complete object.
+        // console.log(obj);//This object is the object sended by server. nothing else.
+
+        if (response.status === 200) {
+            alert('registration successful');
+        } else {
+            alert('Failed. User already registered.');
+        }
     }
 
     return (
@@ -24,6 +33,7 @@ export default function RegisterPage() {
                 placeholder="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                minlength="4"
             />
             <input
                 type="password"
