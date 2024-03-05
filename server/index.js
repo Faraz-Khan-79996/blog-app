@@ -4,6 +4,7 @@ const app = express()
 const mongoose = require('mongoose');
 const User = require('./models/User')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
 //salt and secret. Sync
@@ -16,20 +17,64 @@ async function main() {
     console.log("database connected");
 }
 
-app.use(cors())
+//Due to the credentials : 'include' in fetch.
+app.use(cors({credentials:true,origin:'http://localhost:5173'}));
 app.use(express.json())
 
-app.get("/test" , (req , res)=>res.send("working"))
+app.get("/test", (req, res) => res.send("working"))
 
-app.post("/api/register" , async (req , res)=>{
-    const {username , password} = req.body;
-    const hashedPassword = bcrypt.hashSync(password , salt)
+app.post("/api/register", async (req, res) => {
+    const { username, password } = req.body;
+    const hashedPassword = bcrypt.hashSync(password, salt)
     try {
-        const userDoc = await User.create({username , password:hashedPassword})
-        res.json(userDoc)   
+        const userDoc = await User.create({ username, password: hashedPassword })
+        res.json(userDoc)
     } catch (e) {
         res.status(400).json(e)
     }
+})
+
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+    const userDoc = await User.findOne({ username })
+
+    if (userDoc) {
+        const passOk = bcrypt.compareSync(password, userDoc.password)
+
+        const payload = {
+            username,
+            id: userDoc._id
+        }
+        if (passOk) {
+            jwt.sign(payload, secret, {}, (err , token)=>{
+                if (err) throw err;
+                res.cookie('token' , token)
+                res.status(200).json(payload)
+            })
+        }
+        else {
+            res.status(400).json({msg : 'Password incorrect'})
+        }
+    } else {
+        res.status(400).json({msg : 'username does not exist!'})
+    }
+
+    // const {username,password} = req.body;
+    // const userDoc = await User.findOne({username});
+    // const passOk = bcrypt.compareSync(password, userDoc.password);
+    // if (passOk) {
+    //   // logged in
+    //   jwt.sign({username,id:userDoc._id}, secret, {}, (err,token) => {
+    //     if (err) throw err;
+    //     res.cookie('token', token).json({
+    //       id:userDoc._id,
+    //       username,
+    //     });
+    //   });
+    // } else {
+    //   res.status(400).json('wrong credentials');
+    // }
+
 })
 
 

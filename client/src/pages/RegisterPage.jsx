@@ -33,7 +33,7 @@ export default function RegisterPage() {
                 placeholder="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                minlength="4"
+                minLength="4"
             />
             <input
                 type="password"
