@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const User = require('./models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser')
 require('dotenv').config()
 
 //salt and secret. Sync
@@ -20,6 +21,7 @@ async function main() {
 //Due to the credentials : 'include' in fetch.
 app.use(cors({credentials:true,origin:'http://localhost:5173'}));
 app.use(express.json())
+app.use(cookieParser())
 
 app.get("/test", (req, res) => res.send("working"))
 
@@ -77,5 +79,30 @@ app.post('/api/login', async (req, res) => {
 
 })
 
+app.get('/api/profile' , (req , res) =>{
+
+    const {token} = req.cookies;
+    
+    //info is the payload of the token along with 
+    //iat (issued at time)
+    if(token){
+        jwt.verify(token, secret, {}, (err,info) => {
+            if (err) throw err;
+            res.json(info);
+          });
+    }
+    else{
+        res.status(400).json({msg:"no token in cookie"})     
+    }
+
+    // res.json({token})
+})
+ 
+app.post('/api/logout' , (req , res)=>{
+    res.cookie('token' , '' , {
+        maxAge : 1,
+    })
+    res.json('cookie deleted')
+})
 
 app.listen(3000)
