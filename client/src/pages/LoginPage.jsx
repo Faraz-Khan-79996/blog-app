@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {Navigate} from 'react-router-dom'
+import UserContext from "../context/UserContext";
 
 export default function LoginPage() {
 
     const [username,setUsername] = useState('');
     const [password,setPassword] = useState('');
     const [redirect , setRedirect] = useState(false)
+    const {setUserInfo} = useContext(UserContext)
 
     async function login(ev) {
         ev.preventDefault();
@@ -20,6 +22,8 @@ export default function LoginPage() {
         })
         // console.log(response);
         if(response.ok){
+            const user_data = await response.json()
+            setUserInfo(user_data)
             setRedirect(true)
         }
         else{

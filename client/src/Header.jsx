@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import UserContext from "./context/UserContext";
 
 
 
 export default function () {
 
-    const [username, setUsername] = useState(null)
+    // const [username, setUsername] = useState(null)
+    const {userInfo , setUserInfo} = useContext(UserContext)
 
     //This is the header component.
     //call /profile to check if the token is valid.
@@ -16,10 +18,11 @@ export default function () {
                 credentials: 'include'
             })
             // console.log(response);
-            const userInfo = await response.json();
+            const userInfo_api = await response.json();
             console.log(userInfo);
             if (response.ok) {
-                setUsername(userInfo.username)
+                // setUsername(userInfo.username)
+                setUserInfo(userInfo_api)
             }
         }
         getProfile()
@@ -29,8 +32,10 @@ export default function () {
         const response = fetch('/api/logout' , {
             method : 'POST',
         })
-        setUsername(null)
+        setUserInfo(null)
     }
+
+    const username = userInfo?.username;
 
     return (
         <header>
