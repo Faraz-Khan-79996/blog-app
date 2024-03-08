@@ -2,11 +2,13 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 const mongoose = require('mongoose');
-const User = require('./models/User')
+const User = require('./models/User')//usermodel
+const Post = require('./models/Post');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
 const multer = require('multer')
+const path = require('path')
 require('dotenv').config()
 
 //salt and secret. Sync
@@ -23,6 +25,8 @@ async function main() {
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(express.json())
 app.use(cookieParser())
+//making uploads folder static and available on '/api/uploads' path
+app.use('/api/uploads' , express.static(path.join(__dirname , 'uploads')))
 
 app.get("/test", (req, res) => res.send("working"))
 
@@ -119,7 +123,41 @@ const storage = multer.diskStorage({
     }
 })
 const upload = multer({ storage: storage })
-app.post('/api/post', upload.single('file') ,(req, res) => {
-    res.json({...req.file,...req.body})
+app.post('/api/post', upload.single('file'), async (req, res) => {
+    //File is saved to ./uploads by the multer middleware
+
+    const { token } = req.cookies;
+    //we're sending the cookie when we create a post.
+    jwt.verify(token, secret, {}, async (err, info) => {
+        if (err) throw err;
+        //create a Post document and save to database
+        const { title, summary, content } = req.body;
+        const postDoc = await Post.create({
+            title,
+            summary,
+            content,
+            cover: `uploads/${req.file.originalname}`,
+            // cover : path.normalize(req.file.path),
+            author:info.id
+        })
+        // res.json({...req.file,...req.body})
+        res.json(postDoc)
+    })
+
 })
+
+app.get('/api/post', async (req, res) => {
+
+    //taking out posts from the posts collection using 
+    //Post model.
+    const posts = await Post.find()
+    .populate('author' , ['username'])
+    .sort({createdAt:-1})//sort based on createdAt.
+    .limit(30)
+    //populate will attach the user doucement based on the object id
+    //present in 'author' inside of 'Post'
+    //only attach 'username' from users collection
+    res.json(posts)
+})
+
 app.listen(3000)

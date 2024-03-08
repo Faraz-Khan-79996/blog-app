@@ -8,7 +8,7 @@ export default function RegisterPage() {
 
     async function register(ev) {
         ev.preventDefault();
-        console.log({ username, password });
+        // console.log({ username, password });
         const response = await fetch('http://localhost:3000/api/register', {
             method: 'POST',
             body: JSON.stringify({ username, password }),
