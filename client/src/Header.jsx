@@ -19,7 +19,7 @@ export default function () {
             })
             // console.log(response);
             const userInfo_api = await response.json();
-            console.log(userInfo);
+            console.log(userInfo_api);
             if (response.ok) {
                 // setUsername(userInfo.username)
                 setUserInfo(userInfo_api)

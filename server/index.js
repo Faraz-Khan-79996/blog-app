@@ -6,6 +6,7 @@ const User = require('./models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
+const multer = require('multer')
 require('dotenv').config()
 
 //salt and secret. Sync
@@ -19,7 +20,7 @@ async function main() {
 }
 
 //Due to the credentials : 'include' in fetch.
-app.use(cors({credentials:true,origin:'http://localhost:5173'}));
+app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(express.json())
 app.use(cookieParser())
 
@@ -48,17 +49,17 @@ app.post('/api/login', async (req, res) => {
             id: userDoc._id
         }
         if (passOk) {
-            jwt.sign(payload, secret, {}, (err , token)=>{
+            jwt.sign(payload, secret, {}, (err, token) => {
                 if (err) throw err;
-                res.cookie('token' , token)
+                res.cookie('token', token)
                 res.status(200).json(payload)
             })
         }
         else {
-            res.status(400).json({msg : 'Password incorrect'})
+            res.status(400).json({ msg: 'Password incorrect' })
         }
     } else {
-        res.status(400).json({msg : 'username does not exist!'})
+        res.status(400).json({ msg: 'username does not exist!' })
     }
 
     // const {username,password} = req.body;
@@ -79,30 +80,46 @@ app.post('/api/login', async (req, res) => {
 
 })
 
-app.get('/api/profile' , (req , res) =>{
+app.get('/api/profile', (req, res) => {
 
-    const {token} = req.cookies;
-    
+    const { token } = req.cookies;
+
     //info is the payload of the token along with 
     //iat (issued at time)
-    if(token){
-        jwt.verify(token, secret, {}, (err,info) => {
+    if (token) {
+        jwt.verify(token, secret, {}, (err, info) => {
             if (err) throw err;
             res.json(info);
-          });
+        });
     }
-    else{
-        res.status(400).json({msg:"no token in cookie"})     
+    else {
+        res.status(400).json({ msg: "no token in cookie" })
     }
 
     // res.json({token})
 })
- 
-app.post('/api/logout' , (req , res)=>{
-    res.cookie('token' , '' , {
-        maxAge : 1,
+
+app.post('/api/logout', (req, res) => {
+    res.cookie('token', '', {
+        maxAge: 1,
     })
     res.json('cookie deleted')
 })
 
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads')
+    },
+    filename: function (req, file, cb) {
+        // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+        // cb(null, file.fieldname + '-' + uniqueSuffix)
+
+        cb(null, file.originalname)
+    }
+})
+const upload = multer({ storage: storage })
+app.post('/api/post', upload.single('file') ,(req, res) => {
+    res.json({...req.file,...req.body})
+})
 app.listen(3000)
