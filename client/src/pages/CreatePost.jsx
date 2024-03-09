@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
 import { Navigate } from 'react-router-dom';
+import Editor from '../Editor';
+
 
 export default function CreatePost() {
 
@@ -11,22 +11,6 @@ export default function CreatePost() {
     const [files, setFiles] = useState('')
     const [redirect , setRedirect] = useState(false)
 
-    const modules = {
-        toolbar: [
-            [{ 'header': [1, 2, false] }],
-            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-            ['link', 'image'],
-            ['clean']
-        ]
-    }
-
-    const formats = [
-        'header',
-        'bold', 'italic', 'underline', 'strike', 'blockquote',
-        'list', 'bullet', 'indent',
-        'link', 'image'
-    ]
 
     async function createNewPost(event) {
         event.preventDefault()
@@ -77,16 +61,9 @@ export default function CreatePost() {
                 onChange={ev => setFiles(ev.target.files)}
                 required
             />
-
-            <ReactQuill
-                value={content}
-                modules={modules}
-                onChange={newValue => setContent(newValue)}
-            //se the docs of react-quill
-            // formats={formats}
-            />
+           
             <button style={{ marginTop: '15px' }}>Create Post</button>
-
+            <Editor value={content} onChange={setContent}/>
         </form>
     );
 }

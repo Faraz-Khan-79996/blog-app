@@ -35,7 +35,7 @@ export default function PostPage(params) {
             <div className="author">by @{postInfo.author.username}</div>
 
             {/* if the id of post author and current user is equal, diplay the edit button */}
-            {userInfo.id === postInfo.author._id && (
+            {userInfo && userInfo.id === postInfo.author._id && (
                 <div className="edit-row">
                     <Link className="edit-btn" to={`/edit/${postInfo._id}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">

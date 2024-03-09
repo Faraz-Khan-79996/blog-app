@@ -137,13 +137,51 @@ app.post('/api/post', upload.single('file'), async (req, res) => {
             summary,
             content,
             cover: `uploads/${req.file.originalname}`,
-            // cover : path.normalize(req.file.path),
+            // cover : path.normalize(req.file.path),//NOT working
             author:info.id
         })
         // res.json({...req.file,...req.body})
         res.json(postDoc)
     })
 
+})
+app.put('/api/post' ,upload.single('file'),async (req , res)=>{
+    //If there're no file incoming, error will not be thrown.
+    //IF there's NO file, upload.single won't add it.
+
+    const {token} = req.cookies;
+
+    jwt.verify(token , secret , {} , async (err , info)=>{
+        if(err) throw err;
+
+        const {id , title , summary , content} = req.body;
+        const postDoc = await Post.findById(id)
+
+        //if id from cookie and that author from 'postDoc' is same,
+        //only then update.
+        const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
+
+        if(!isAuthor)
+            return res.status(400).json('you are not the author');
+        
+        //Below code is deprecated
+        // await postDoc.update({
+        //     title,
+        //     title,
+        //     summary,
+        //     content,
+        //     cover: req.file?`uploads/${req.file.originalname}` : postDoc.cover ,
+        //     //IF file is there, update the cover, else same as previous
+        // })
+        const updateFields = {
+            title,
+            summary,
+            content,
+            cover: req.file ? `uploads/${req.file.originalname}` : postDoc.cover
+        };
+        await Post.updateOne({ _id: id }, updateFields);
+        res.json(postDoc)
+    })
 })
 
 //sends all the posts in the database.
