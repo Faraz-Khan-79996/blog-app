@@ -146,6 +146,7 @@ app.post('/api/post', upload.single('file'), async (req, res) => {
 
 })
 
+//sends all the posts in the database.
 app.get('/api/post', async (req, res) => {
 
     //taking out posts from the posts collection using 
@@ -160,4 +161,17 @@ app.get('/api/post', async (req, res) => {
     res.json(posts)
 })
 
+app.get('/api/post/:id' , async(req , res)=>{
+    
+    const {id} = req.params;
+
+    try {
+        //populate the author field with ONLY 'username'
+        const postDoc = await Post.findById(id).populate('author' , ['username'])
+    res.json(postDoc)
+    } catch (error) {
+        res.status(400).json({error , msg:"NOT FOUND"})
+    }
+
+})
 app.listen(3000)
