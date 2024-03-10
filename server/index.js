@@ -20,6 +20,8 @@ async function main() {
     console.log("database connected");
 }
 
+app.use(express.static(path.join(__dirname , 'dist')))
+
 //Due to the credentials : 'include' in fetch.
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(express.json())
@@ -210,6 +212,10 @@ app.get('/api/post/:id' , async(req , res)=>{
         res.status(400).json({error , msg:"NOT FOUND"})
     }
 
+})
+
+app.use('*' , (req , res)=>{
+    res.sendFile(path.join(__dirname , 'dist' , 'index.html'))//This is the preferred way
 })
 
 app.listen(3000)
