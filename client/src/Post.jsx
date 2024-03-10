@@ -6,7 +6,7 @@ export default function Post({ _id, title, summary, cover, content, createdAt, a
         <div className="post">
             <div className="image">
                 <Link to={`/post/${_id}`}>
-                    <img src={`http://localhost:3000/api/${cover}`} alt="" />
+                    <img src={`/api/${cover}`} alt="" />
                 </Link>
             </div>
             <div className="texts">

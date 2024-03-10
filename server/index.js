@@ -11,9 +11,8 @@ const multer = require('multer')
 const path = require('path')
 require('dotenv').config()
 
-//salt and secret. Sync
+//salt and process.env.SECRET. Sync
 const salt = bcrypt.genSaltSync(10);
-const secret = 'asdfe45we45w345wegw345werjktjwertkj';
 
 main().catch(err => console.log(err));
 async function main() {
@@ -53,7 +52,7 @@ app.post('/api/login', async (req, res) => {
             id: userDoc._id
         }
         if (passOk) {
-            jwt.sign(payload, secret, {}, (err, token) => {
+            jwt.sign(payload, process.env.SECRET, {}, (err, token) => {
                 if (err) throw err;
                 res.cookie('token', token)
                 res.status(200).json(payload)
@@ -71,7 +70,7 @@ app.post('/api/login', async (req, res) => {
     // const passOk = bcrypt.compareSync(password, userDoc.password);
     // if (passOk) {
     //   // logged in
-    //   jwt.sign({username,id:userDoc._id}, secret, {}, (err,token) => {
+    //   jwt.sign({username,id:userDoc._id}, process.env.SECRET, {}, (err,token) => {
     //     if (err) throw err;
     //     res.cookie('token', token).json({
     //       id:userDoc._id,
@@ -91,7 +90,7 @@ app.get('/api/profile', (req, res) => {
     //info is the payload of the token along with 
     //iat (issued at time)
     if (token) {
-        jwt.verify(token, secret, {}, (err, info) => {
+        jwt.verify(token, process.env.SECRET, {}, (err, info) => {
             if (err) throw err;
             res.json(info);
         });
@@ -128,7 +127,7 @@ app.post('/api/post', upload.single('file'), async (req, res) => {
 
     const { token } = req.cookies;
     //we're sending the cookie when we create a post.
-    jwt.verify(token, secret, {}, async (err, info) => {
+    jwt.verify(token, process.env.SECRET, {}, async (err, info) => {
         if (err) throw err;
         //create a Post document and save to database
         const { title, summary, content } = req.body;
@@ -151,7 +150,7 @@ app.put('/api/post' ,upload.single('file'),async (req , res)=>{
 
     const {token} = req.cookies;
 
-    jwt.verify(token , secret , {} , async (err , info)=>{
+    jwt.verify(token , process.env.SECRET , {} , async (err , info)=>{
         if(err) throw err;
 
         const {id , title , summary , content} = req.body;
@@ -212,4 +211,5 @@ app.get('/api/post/:id' , async(req , res)=>{
     }
 
 })
+
 app.listen(3000)

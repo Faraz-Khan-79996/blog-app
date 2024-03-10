@@ -46,7 +46,7 @@ export default function PostPage(params) {
                 </div>
             )}
             <div className="image">
-                <img src={`http://localhost:3000/api/${postInfo.cover}`} alt="" />
+                <img src={`/api/${postInfo.cover}`} alt="" />
             </div>
             <div className="content" dangerouslySetInnerHTML={{ __html: postInfo.content }} />
             {/* You could use react-html-parser instead. */}
