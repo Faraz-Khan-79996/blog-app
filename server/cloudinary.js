@@ -21,7 +21,8 @@ const uploadOnCloudinary = async (localFilePath) => {
     try {
         if (!localFilePath) return {msg:"no file received"}
         //upload the file on cloudinary
-        const response = await cloudinary.uploader.upload(localFilePath, {
+        // const response = await cloudinary.uploader.upload(localFilePath, {
+        const response = await cloudinary.uploader.upload(`https://blog-app-2-ph6t.onrender.com/api/uploads/${localFilePath}`, {
             resource_type: "auto"
         })
         // file has been uploaded successfull

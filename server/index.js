@@ -28,7 +28,8 @@ app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(express.json())
 app.use(cookieParser())
 //making uploads folder static and available on '/api/uploads' path
-app.use(express.static(path.join(__dirname , 'uploads')))
+app.use(express.static(path.join(__dirname , '/api/uploads')))
+// app.use(express.static(path.join(__dirname , 'uploads')))
 
 app.get("/test", (req, res) => res.send("working"))
 
@@ -133,7 +134,8 @@ app.post('/api/post', upload.single('file'), async (req, res) => {
     jwt.verify(token, process.env.SECRET, {}, async (err, info) => {
         if (err) throw err;
         //create a Post document and save to database
-        const filePath = path.join(__dirname , `uploads/${req.file.originalname}`)
+        // const filePath = path.join(__dirname , `uploads/${req.file.originalname}`)
+        const filePath = req.file.originalname
         const response = await uploadOnCloudinary(filePath)
         // console.log(response);
 
