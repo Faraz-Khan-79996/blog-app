@@ -236,8 +236,8 @@ app.delete('/api/delete/:id' , async(req , res)=>{
     res.json(id)
 })
 
-app.use('*' , (req , res)=>{
-    res.sendFile(path.join(__dirname , 'dist' , 'index.html'))//This is the preferred way
-})
+// app.use('*' , (req , res)=>{
+//     res.sendFile(path.join(__dirname , 'dist' , 'index.html'))//This is the preferred way
+// })
 
 app.listen(3000)

@@ -38,7 +38,7 @@ export default function PostPage(params) {
             })
     }, [])
 
-    if (!postInfo) return <h1>No post with this id!</h1>
+    // if (!postInfo) return <h1>No post with this id!</h1>
 
     async function deletePost(ev) {
         ev.preventDefault()
@@ -57,7 +57,7 @@ export default function PostPage(params) {
     if (redirect) {
         return <Navigate to="/" />
     }
-    if (loading) {
+    if (loading || !postInfo) {
         return (
             <div style={{
                 display: "flex",
