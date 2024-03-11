@@ -21,7 +21,7 @@ export default function RegisterPage() {
         // console.log(obj);//This object is the object sended by server. nothing else.
 
         if (response.status === 200) {
-            alert('registration successful');
+            alert('Registration successful!\nLogin using the same Username and Password');
             setRedirect(true)
         } else {
             alert('Failed. User already registered.');
@@ -47,6 +47,7 @@ export default function RegisterPage() {
                 placeholder="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                minLength={4}
             />
             <button>Register</button>
         </form>
