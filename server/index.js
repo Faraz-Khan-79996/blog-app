@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
 const multer = require('multer')
 const path = require('path')
+const uploadOnCloudinary = require('./cloudinary')
 require('dotenv').config()
 
 //salt and process.env.SECRET. Sync
@@ -19,6 +20,8 @@ async function main() {
     await mongoose.connect(process.env.MONGO_URL);
     console.log("database connected");
 }
+
+app.use(express.static(path.join(__dirname , 'dist')))
 
 //Due to the credentials : 'include' in fetch.
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
@@ -130,12 +133,16 @@ app.post('/api/post', upload.single('file'), async (req, res) => {
     jwt.verify(token, process.env.SECRET, {}, async (err, info) => {
         if (err) throw err;
         //create a Post document and save to database
+        const filePath = path.join(__dirname , `uploads/${req.file.originalname}`)
+        const response = await uploadOnCloudinary(filePath)
+        // console.log(response);
+
         const { title, summary, content } = req.body;
         const postDoc = await Post.create({
             title,
             summary,
             content,
-            cover: `uploads/${req.file.originalname}`,
+            cover: response.url,
             // cover : path.normalize(req.file.path),//NOT working
             author:info.id
         })
@@ -172,11 +179,18 @@ app.put('/api/post' ,upload.single('file'),async (req , res)=>{
         //     cover: req.file?`uploads/${req.file.originalname}` : postDoc.cover ,
         //     //IF file is there, update the cover, else same as previous
         // })
+        let newCover = postDoc.cover;
+        if(req.file){
+            const filePath = path.join(__dirname , `uploads/${req.file.originalname}`)
+            const response = await uploadOnCloudinary(filePath)     
+            newCover = response.url       
+        }
+
         const updateFields = {
             title,
             summary,
             content,
-            cover: req.file ? `uploads/${req.file.originalname}` : postDoc.cover
+            cover: newCover,
         };
         await Post.updateOne({ _id: id }, updateFields);
         res.json(postDoc)
@@ -210,6 +224,20 @@ app.get('/api/post/:id' , async(req , res)=>{
         res.status(400).json({error , msg:"NOT FOUND"})
     }
 
+})
+
+app.delete('/api/delete/:id' , async(req , res)=>{
+    //I've skipped wheter user is the same or not,
+    //as it's in the frontend
+
+    const {id} = req.params;
+  // Delete the document by its _id
+    await Post.deleteOne({ _id:id });
+    res.json(id)
+})
+
+app.use('*' , (req , res)=>{
+    res.sendFile(path.join(__dirname , 'dist' , 'index.html'))//This is the preferred way
 })
 
 app.listen(3000)

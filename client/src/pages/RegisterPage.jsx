@@ -1,10 +1,12 @@
 
 import { useState } from "react";
+import { Navigate } from 'react-router-dom';
 
 export default function RegisterPage() {
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const [redirect , setRedirect] = useState(false)
 
     async function register(ev) {
         ev.preventDefault();
@@ -19,10 +21,15 @@ export default function RegisterPage() {
         // console.log(obj);//This object is the object sended by server. nothing else.
 
         if (response.status === 200) {
-            alert('registration successful');
+            alert('Registration successful!\nLogin using the same Username and Password');
+            setRedirect(true)
         } else {
             alert('Failed. User already registered.');
         }
+    }
+
+    if(redirect){
+        return <Navigate to="/"/>
     }
 
     return (
@@ -40,6 +47,7 @@ export default function RegisterPage() {
                 placeholder="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                minLength={4}
             />
             <button>Register</button>
         </form>

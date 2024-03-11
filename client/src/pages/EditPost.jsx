@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Editor from "../Editor";
 import { useParams } from "react-router-dom";
 import { Navigate } from "react-router-dom";
+import ClockLoader from "react-spinners/ClockLoader";
 
 export default function EditPost() {
 
@@ -12,16 +13,26 @@ export default function EditPost() {
     const [content, setContent] = useState('')
     const [files, setFiles] = useState(null)
     const [redirect , setRedirect] = useState(false)
+    const [loading , setLoading] = useState(false)
 
     const {id} = useParams()
 
+    //loader styling
+    const override = {
+        display: "block",
+        margin: "0 auto",
+        borderColor: "red",
+    };
+
     useEffect(()=>{
+        setLoading(prev => true)
         fetch(`/api/post/${id}`)
         .then(response => response.json())
         .then(postInfo => {
-            setTitle(postInfo.title)
-            setContent(postInfo.content)
-            setSummary(postInfo.summary)
+            setLoading(prev => false)
+            setTitle(prev => postInfo.title)
+            setContent(prev => postInfo.content)
+            setSummary(prev => postInfo.summary)
         })
         .catch(error => console.log(error))
     } , [])
@@ -40,6 +51,7 @@ export default function EditPost() {
         // other-wise error
         // console.log(files);
         // console.log(data);
+        setLoading(prev => true)
         await fetch('/api/post' , {
             method:'PUT',
             body:data,
@@ -47,8 +59,8 @@ export default function EditPost() {
             //send the token, server will verify id of token
             //and the id of author which is in post.
         })
-
-        setRedirect(true)
+        setLoading((prev) => false)
+        setRedirect((prev) => true)
     }
 
     if(redirect){
@@ -56,6 +68,29 @@ export default function EditPost() {
             <Navigate to ={"/post/" + id}/>
         )
     }
+    if(loading){
+        return (
+            <div style={{
+                display:"flex",
+                alignItems:"center",
+                justifyContent:"center",
+                width:"100%",
+                height:"500px",
+            }}>
+                {loading && (<div>
+                    <ClockLoader
+                        color={"silver"}
+                        loading={loading}
+                        cssOverride={override}
+                        size={150}
+                        aria-label="Loading Spinner"
+                        data-testid="loader"
+                    />
+                </div>)}
+            </div>
+        )
+    }
+    
     return (
         <form onSubmit={updatePost}>
             <input
