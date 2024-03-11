@@ -28,7 +28,7 @@ app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(express.json())
 app.use(cookieParser())
 //making uploads folder static and available on '/api/uploads' path
-app.use('/api/uploads' , express.static(path.join(__dirname , 'uploads')))
+app.use(express.static(path.join(__dirname , 'uploads')))
 
 app.get("/test", (req, res) => res.send("working"))
 
