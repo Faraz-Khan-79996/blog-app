@@ -127,7 +127,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 app.post('/api/post', upload.single('file'), async (req, res) => {
     //File is saved to ./uploads by the multer middleware
-    console.log("received file : " + JSON.stringify(req.file) );
+    // console.log("received file : " + JSON.stringify(req.file) );
     const { token } = req.cookies;
     //we're sending the cookie when we create a post.
     jwt.verify(token, process.env.SECRET, {}, async (err, info) => {
@@ -147,7 +147,7 @@ app.post('/api/post', upload.single('file'), async (req, res) => {
             author:info.id
         })
         // res.json({...req.file,...req.body})
-        res.json(postDoc)
+        res.json({postDoc , response})
     })
 
 })
